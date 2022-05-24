@@ -35,7 +35,8 @@ async def main():
             for byte in chunk:
                 data.append(byte)
         media = mastodon.media_post(bytes(data), mime_type=mimetypes.guess_type(img)[0])
-        mastodon.status_post(f"Happy {day[0]} day!\n\n#2hubot", sensitive=True, media_ids=media)
+        weekday = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][date.today().weekday()]
+        mastodon.status_post(f"Happy {day[0]} {weekday}!\n\n#2hubot", sensitive=True, media_ids=media)
         await asyncio.sleep(86400)
 
 
