@@ -30,10 +30,10 @@ async def main():
         api_base_url=os.environ["INST_URL"])
     while True:
         day = random.choice(queries[date.today().weekday()])
-        now = datetime.datetime.now(datetime.timezone.utc)
-        now.replace(hour=0, minute=0, second=0, microsecond=0)
+        next_time = datetime.datetime.now(datetime.timezone.utc)
+        next_time.replace(day=next_time.day + 1, hour=0, minute=0, second=0, microsecond=0)
         for i in range(24):
-            if datetime.datetime.now(datetime.timezone.utc) > now:
+            if datetime.datetime.now(datetime.timezone.utc) > next_time:
                 break
             img = json.JSONDecoder().decode(await Danbooru().search(query=day[1], gacha=True))["file_url"]
             data = []
