@@ -4,6 +4,7 @@ import os
 import json
 import requests
 import random
+import datetime
 from datetime import date
 from dotenv import load_dotenv
 from mastodon import Mastodon
@@ -29,15 +30,20 @@ async def main():
         api_base_url=os.environ["INST_URL"])
     while True:
         day = random.choice(queries[date.today().weekday()])
-        img = json.JSONDecoder().decode(await Danbooru().search(query=day[1], gacha=True))["file_url"]
-        data = []
-        for chunk in requests.get(img, stream=True):
-            for byte in chunk:
-                data.append(byte)
-        media = mastodon.media_post(bytes(data), mime_type=mimetypes.guess_type(img)[0])
-        weekday = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][date.today().weekday()]
-        mastodon.status_post(f"Happy {day[0]} {weekday}!\n\n#2hubot", sensitive=True, media_ids=media)
-        await asyncio.sleep(86400)
+        now = datetime.datetime.now(datetime.timezone.utc)
+        now.replace(hour=0, minute=0, second=0, microsecond=0)
+        for i in range(24):
+            if datetime.datetime.now(datetime.timezone.utc) > now:
+                break
+            img = json.JSONDecoder().decode(await Danbooru().search(query=day[1], gacha=True))["file_url"]
+            data = []
+            for chunk in requests.get(img, stream=True):
+                for byte in chunk:
+                  data.append(byte)
+            media = mastodon.media_post(bytes(data), mime_type=mimetypes.guess_type(img)[0])
+            weekday = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][date.today(datetime.timezone.utc).weekday()]
+            mastodon.status_post(f"Happy {day[0]} {weekday}!\n\n#2hubot", sensitive=True, media_ids=media)
+            await asyncio.sleep(3600)
 
 
 if __name__ == "__main__":
