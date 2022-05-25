@@ -29,11 +29,12 @@ async def main():
         access_token=os.environ["TKN"],
         api_base_url=os.environ["INST_URL"])
     while True:
-        day = random.choice(queries[date.today().weekday()])
+        day = random.choice(queries[datetime.datetime.now(datetime.timezone.utc).weekday()])
         next_time = datetime.datetime.now(datetime.timezone.utc)
-        next_time.replace(day=next_time.day + 1, hour=0, minute=0, second=0, microsecond=0)
-        for i in range(24):
+        next_time = next_time.replace(day=next_time.day + 1, hour=0, minute=0, second=0, microsecond=0)
+        while True:
             if datetime.datetime.now(datetime.timezone.utc) > next_time:
+                print(next_time)
                 break
             img = json.JSONDecoder().decode(await Danbooru().search(query=day[1], gacha=True))["file_url"]
             data = []
@@ -41,7 +42,7 @@ async def main():
                 for byte in chunk:
                   data.append(byte)
             media = mastodon.media_post(bytes(data), mime_type=mimetypes.guess_type(img)[0])
-            weekday = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][date.today(datetime.timezone.utc).weekday()]
+            weekday = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][datetime.datetime.now(datetime.timezone.utc).weekday()]
             mastodon.status_post(f"Happy {day[0]} {weekday}!\n\n#2hubot", sensitive=True, media_ids=media)
             await asyncio.sleep(3600)
 
